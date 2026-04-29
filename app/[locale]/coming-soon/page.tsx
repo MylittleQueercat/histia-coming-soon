@@ -1,4 +1,5 @@
 import { ReactNode } from "react"
+import { useIntlayer } from "next-intlayer/server"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -10,39 +11,6 @@ interface LocaleContent {
   mascot: string
 }
 
-// ─── i18n content ────────────────────────────────────────────────────────────
-
-const content: Record<string, LocaleContent> = {
-  fr: {
-    tag: "PAGE EN CONSTRUCTION",
-    title: "Cette page arrive bientôt",
-    description: (
-      <>
-        Nous sommes encore en version bêta,{" "}
-        <strong className="text-white font-semibold">Stolos</strong>{" "}
-        n'est pas encore complet, notre équipe travaille d'arrache pied
-        pour vous apporter cette page au plus vite !
-      </>
-    ),
-    link: "→ Nos nouveautés ici",
-    mascot: "/mascot-fr.png",
-  },
-  en: {
-    tag: "PAGE UNDER CONSTRUCTION",
-    title: "This page is coming soon",
-    description: (
-      <>
-        We're still in beta,{" "}
-        <strong className="text-white font-semibold">Stolos</strong>{" "}
-        isn't complete yet, our team is working hard to bring you this
-        page as soon as possible!
-      </>
-    ),
-    link: "→ Our latest updates here",
-    mascot: "/mascot-en.png",
-  },
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ComingSoon({
@@ -51,7 +19,29 @@ export default async function ComingSoon({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  const t = content[locale] ?? content.fr
+  const intlayer = useIntlayer("coming-soon", locale)
+
+  const t: LocaleContent = {
+    tag: intlayer.tag as string,
+    title: intlayer.title as string,
+    description: (
+      <>
+        {locale === "fr" ? (
+          <>Nous sommes encore en version bêta,{" "}
+            <strong className="text-white font-semibold">Stolos</strong>{" "}
+            n'est pas encore complet, notre équipe travaille d'arrache pied pour vous apporter cette page au plus vite !
+          </>
+        ) : (
+          <>We're still in beta,{" "}
+            <strong className="text-white font-semibold">Stolos</strong>{" "}
+            isn't complete yet, our team is working hard to bring you this page as soon as possible!
+          </>
+        )}
+      </>
+    ),
+    link: intlayer.link as string,
+    mascot: locale === "en" ? "/mascot-en.png" : "/mascot-fr.png",
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#272149] p-4 md:p-8">
@@ -59,7 +49,7 @@ export default async function ComingSoon({
 
         {/* Text content */}
         <div className="flex flex-col flex-1 max-w-[500px]">
-          <span className="text-xs font-medium uppercase tracking-normal px-[14px] py-[6px] mb-5 rounded-full w-fit bg-[#352F5A] text-[#BFB9DF]">
+          <span className="text-[9px] font-medium uppercase tracking-normal px-[13px] py-[6px] mb-5 rounded-full w-fit bg-[#352F5A] text-[#BFB9DF]">
             {t.tag}
           </span>
 
